@@ -1,0 +1,60 @@
+<html>
+<body>
+    <div>
+        <img id="radar" src="https://www.iap-kborn.de/fileadmin/user_upload/MAIN-abteilung/radar/Radars/OswinVHF/Plots/OSWIN_Mesosphere_4hour.png" title="Oswin Radar Image"/>
+    </div><div>    
+        <img id="masked" src="https://www.iap-kborn.de/fileadmin/user_upload/MAIN-abteilung/radar/Radars/OswinVHF/Plots/OSWIN_Mesosphere_4hour.png" title="Oswin Radar Image"/>
+    </div>
+    
+    <script>
+        
+        window.onload = function() {
+            var image = document.getElementById("radar");
+
+            function updateImage() {
+                image.src = image.src.split("?")[0] + "?" + new Date().getTime();
+            }
+
+            setInterval(updateImage, 120000);
+        }
+    </script>
+
+    <style>
+        #radar{
+            height: 90%;
+            filter: invert(1);
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #masked{
+            height: 90%;
+            -webkit-mask-image: url("./Oswin_mask.png");
+            -webkit-mask-size: 100% 100%;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        div {
+            width: 100%;
+            height: 1100px;
+            display:inline;
+            position: absolute;
+            left: -10;
+            top: -20;
+            /*background-image: url("./Oswin_mask.png");
+            background-image: url("https://www.iap-kborn.de/fileadmin/user_upload/MAIN-abteilung/radar/Radars/OswinVHF/Plots/OSWIN_Mesosphere_4hour.png");
+            -webkit-mask-image: url("./Oswin_mask.png");
+            -webkit-mask-size: 100% 100%;*/
+        }
+
+        body{
+            overflow:hidden;
+            background-color:black
+        }
+    </style>
+</body>
+</html>
+
