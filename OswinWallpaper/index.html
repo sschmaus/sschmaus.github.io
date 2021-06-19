@@ -1,67 +1,104 @@
+<!DOCTYPE html>
+
 <html>
+<head>
+    <title>Oswin Radar</title>
+</head>
+
 <body>
     <div>
-        <img class="update" id="radar" src="https://www.iap-kborn.de/fileadmin/user_upload/MAIN-abteilung/radar/Radars/OswinVHF/Plots/OSWIN_Mesosphere_4hour.png"/>
-    </div><div>    
-        <img class="update" id="masked" src="https://www.iap-kborn.de/fileadmin/user_upload/MAIN-abteilung/radar/Radars/OswinVHF/Plots/OSWIN_Mesosphere_4hour.png"/>
+        <canvas id="canvas" width="1200" height="1575">no canvas support</canvas>
     </div>
-    
-    <script>
+</canvas>
+
+
+<script type="text/javascript">
+
+
+    window.onload = function() {
+        var darkMode = true;
         
-        window.onload = function() {
-            var update = document.getElementsByClassName("update");
-            
-            function updateImage() {
-                for (i = 0; i < update.length; i++) {
-                    if (i > 0 && update[i-1].src.split("?")[0] == update[i].src.split("?")[0]) {
-                        update[i].src = update[i-1].src
-                    } else {
-                        update[i].src = update[i].src.split("?")[0] + "?" + new Date().getTime();
+        var canvas = document.getElementById('canvas');
+        ctx = canvas.getContext('2d');
+        ctx.fillStyle = "#000";
+        
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        var image = new Image();
+        
+        function updateImage() {
+            image.src = "https://www.iap-kborn.de/fileadmin/user_upload/MAIN-abteilung/radar/Radars/OswinVHF/Plots/OSWIN_Mesosphere_4hour.png"+ "?" + new Date().getTime();
+            image.crossOrigin = "Anonymous";
+            image.onload = function() {
+                ctx.drawImage(image, 55, 69, 1060, 1440, 55, 69,1060,1440);
+                
+                if (darkMode){
+                    
+                    var imageData = ctx.getImageData(55, 69, 1060, 1440);
+                    // startTime = new Date();
+                    for (var i = 0; i < imageData.data.length; i += 4) {
+                        if (imageData.data[i]==imageData.data[i+1]&&imageData.data[i]==imageData.data[i+2]){
+                            var stretch = 1;
+                            
+                            function calcstretch(value){
+                                var x = value/255;
+                                return 1 + (stretch-1)*(-1*(2*x-1)**2+1);
+                            }
+                            
+                            imageData.data[i] = (255 - imageData.data[i]) * stretch;
+                            imageData.data[i+1] = (255 - imageData.data[i+1]) * stretch;
+                            imageData.data[i+2] = (255 - imageData.data[i+2]) * stretch; 
+
+                            if (imageData.data[i]==76) {
+                                imageData.data[i] = 179;
+                                imageData.data[i+1] = 179;
+                                imageData.data[i+2] = 179;
+                            }
+                        }
                     }
-                    console.log(update[i].src)
+                    // endTime = new Date();
+                    ctx.putImageData(imageData, 55,69);
                 }
+                
+                // var timeDiff = endTime - startTime; //in ms
+                // console.log(timeDiff + "ms");        
+
             }
-
-            setInterval(updateImage, 120000);
         }
-    </script>
+        updateImage();
+        setInterval(updateImage, 120000);
+        
+    }
 
-    <style>
-        #radar{
-            height: 100%;
-            filter: invert(1);
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
 
-        #masked{
-            height: 100%;
-            -webkit-mask-image: url("./Oswin_mask.png");
-            -webkit-mask-size: 100% 100%;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
 
-        div {
-            width: 100%;
-            height: 100%;
-            display:inline;
-            position: absolute;
-            left: 0px;
-            top: -3%;
-            /*background-image: url("./Oswin_mask.png");
-            background-image: url("https://www.iap-kborn.de/fileadmin/user_upload/MAIN-abteilung/radar/Radars/OswinVHF/Plots/OSWIN_Mesosphere_4hour.png");
-            -webkit-mask-image: url("./Oswin_mask.png");
-            -webkit-mask-size: 100% 100%;*/
-        }
 
-        body{
-            overflow:hidden;
-            background-color:black
-        }
-    </style>
+</script>
+<style>
+    #canvas{
+        /*transform-origin: top left;
+        transform: scale(calc(100vh/1575px));*/
+        max-height: 105vh;
+        max-width: 100vw;
+        display: block;
+        margin-top: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    div{
+        width: 100%;
+        height: 100%;
+        display: inline;
+        position: absolute;
+        left: 0px;
+        top: -3%;
+    }
+
+    body{
+        overflow:hidden;
+        background-color:black;
+        margin: 0px;
+    }
+</style>
 </body>
 </html>
-
