@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="UTF-8">
     <title>Simeon Schmauß | LinkFree</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css?2">
     <link rel="stylesheet" href="assets/css/font-awesome.min.css">
     <link rel="icon" href="assets/images/favicon.png" type="image/x-icon" />
     <!-- <script type="text/javascript" src="assets/js/script.js"></script> -->
@@ -29,7 +29,7 @@
         <a class="link" href="https://www.instagram.com/semeion.photo" target="_blank" style="border-radius: 25px;"><i
                 class="fa fa-instagram"></i> Instagram</a>
         <a class="link" href="https://www.astrobin.com/users/semeion/" target="_blank" style="border-radius: 25px;"><i
-            class="fa ico-telescope" aria-hidden="true"></i>Astrobin </a>
+            class="fa fa-globe" aria-hidden="true"></i> Astrobin </a>
         
     </div>
 
@@ -50,7 +50,7 @@
 
     <!-- Javascript -->
     <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
-    <!--<script src="index.js"></script>-->
+    <!-- <script src="index.js"></script> -->
 
     <style>
         .ico-telescope:before {
@@ -65,7 +65,7 @@
         .ico-dark-telescope {
             transform: scale(1);
              position: relative; 
-             top: 3px;
+             top: 4px;
         }
         .ico-dark-telescope:before {
          content: url("assets/images/astrobin-logo-small.png");
@@ -73,6 +73,10 @@
          top: 4px;
          -webkit-filter: invert(100%);
          filter: invert(100%);
+        }
+        .ico-dark-telescope:hover:before {
+         -webkit-filter: invert(0%);
+         filter: invert(0%);
         }
     </style>
 </body>
