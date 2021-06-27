@@ -1,2 +1,2 @@
-# stim3on.github.io
+# sschmaus.github.io
 some website experiments
