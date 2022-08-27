@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Oswin Radar</title>
+    
+    <!-- Primary Meta Tags -->
+    <title>Oswin Radar Wallpaper</title>
+    <meta name="title" content="Oswin Radar Wallpaper">
+    <meta name="description" content="Refreshes the OSWIN Radar graph every two minutes">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sschmaus.github.io/OswinWallpaper/">
+    <meta property="og:title" content="Oswin Radar Wallpaper">
+    <meta property="og:description" content="Refreshes the OSWIN Radar graph every two minutes">
+    <meta property="og:image" content="https://sschmaus.github.io/OswinWallpaper/preview.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://sschmaus.github.io/OswinWallpaper/">
+    <meta property="twitter:title" content="Oswin Radar Wallpaper">
+    <meta property="twitter:description" content="Refreshes the OSWIN Radar graph every two minutes">
+    <meta property="twitter:image" content="https://sschmaus.github.io/OswinWallpaper/preview.png">
+</head>
+
+<body>
+    <div>
+        <canvas id="canvas" width="1200" height="1575">no canvas support</canvas>
+    </div>
+</canvas>
+
+
+<script type="text/javascript">
+
+
+    window.onload = function() {
+        var darkMode = true;
+        
+        var canvas = document.getElementById('canvas');
+        ctx = canvas.getContext('2d');
+        ctx.fillStyle = "#000";
+        
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        var image = new Image();
+        
+        function updateImage() {
+            image.src = "https://www.iap-kborn.de/fileadmin/user_upload/MAIN-abteilung/radar/Radars/OswinVHF/Plots/OSWIN_Mesosphere_4hour.png"+ "?" + new Date().getTime();
+            image.crossOrigin = "Anonymous";
+            image.onload = function() {
+                ctx.drawImage(image, 55, 69, 1060, 1440, 55, 69,1060,1440);
+                
+                if (darkMode){
+                    
+                    var imageData = ctx.getImageData(55, 69, 1060, 1440);
+                    // startTime = new Date();
+                    for (var i = 0; i < imageData.data.length; i += 4) {
+                        if (imageData.data[i]==imageData.data[i+1]&&imageData.data[i]==imageData.data[i+2]){
+                            var stretch = 1;
+                            
+                            function calcstretch(value){
+                                var x = value/255;
+                                return 1 + (stretch-1)*(-1*(2*x-1)**2+1);
+                            }
+                            
+                            imageData.data[i] = (255 - imageData.data[i]) * stretch;
+                            imageData.data[i+1] = (255 - imageData.data[i+1]) * stretch;
+                            imageData.data[i+2] = (255 - imageData.data[i+2]) * stretch; 
+
+                            if (imageData.data[i]==76) {
+                                imageData.data[i] = 179;
+                                imageData.data[i+1] = 179;
+                                imageData.data[i+2] = 179;
+                            }
+                        }
+                    }
+                    // endTime = new Date();
+                    ctx.putImageData(imageData, 55,69);
+                }
+                
+                // var timeDiff = endTime - startTime; //in ms
+                // console.log(timeDiff + "ms");        
+
+            }
+        }
+        updateImage();
+        setInterval(updateImage, 120000);
+        
+    }
+
+
+
+
+</script>
+<style>
+    #canvas{
+        /*transform-origin: top left;
+        transform: scale(calc(100vh/1575px));*/
+        max-height: 105vh;
+        max-width: 100vw;
+        display: block;
+        margin-top: 0;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    div{
+        width: 100%;
+        height: 100%;
+        display: inline;
+        position: absolute;
+        left: 0px;
+        top: -3%;
+    }
+
+    body{
+        overflow:hidden;
+        background-color:black;
+        margin: 0px;
+    }
+</style>
+</body>
+</html>
