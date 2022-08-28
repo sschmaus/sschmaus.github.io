@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Leaflet Collision LayerGroup example</title>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link rel="stylesheet" href="../leaflet.css" />
+
+	<style type="text/css">
+		.city-label {
+			background: white;
+			border: 1px solid #888;
+
+			position: relative;
+
+			display: inline-block;
+			white-space: nowrap;
+		}
+
+		/* Data from Natural Earth applies a "scalerank" of 0 to 10 from big to small cities */
+		/* We'll use that to provide different label text sizes */
+		.city-label-0 { font-size: 20px; top: -27px; }
+		.city-label-1 { font-size: 19px; top: -26px; }
+		.city-label-2 { font-size: 18px; top: -25px; }
+		.city-label-3 { font-size: 17px; top: -24px; }
+		.city-label-4 { font-size: 16px; top: -23px; }
+		.city-label-5 { font-size: 15px; top: -22px; }
+		.city-label-6 { font-size: 14px; top: -21px; }
+		.city-label-7 { font-size: 13px; top: -20px; }
+		.city-label-8 { font-size: 12px; top: -19px; }
+		.city-label-9 { font-size: 11px; top: -18px; }
+		.city-label-10{ font-size: 10px; top: -17px; }
+
+	</style>
+
+</head>
+<body>
+	<div id="map" style="width: 600px; height: 400px;"></div>
+
+	<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+	<script src="http://mazemap.github.io/Leaflet.LayerGroup.Collision/demo/rbush/rbush.js"></script>
+	<script src="../js/Leaflet.LayerGroup.Collision.js"></script>
+<!-- 	<script src="natural_earth_data/major.js"></script> -->
+	<script src="natural_earth_data/most.js"></script>
+<!-- 	<script src="natural_earth_data/all.js"></script> -->
+	<script>
+		var map = L.map('map').setView([40,-3], 2);
+
+		var layer = L.tileLayer('http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.png', {
+			maxZoom: 18,
+			attribution:
+				'Map tiles by <a href="http://stamen.com">Stamen Design</a>, ' +
+				'<a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; ' +
+				'Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+			useCache: true
+		});
+
+		layer.addTo(map);
+
+		var collisionLayer = L.LayerGroup.collision({margin:5});
+
+		// Manually parse the GeoJSON and create the L.Markers one by one
+		// Note that 'cities' is defined in the natural earth data files.
+		for (var i=0; i<cities.features.length; i++) {
+
+			var feat = cities.features[i];
+			var labelClass = 'city-label city-label-' + feat.properties.scalerank;
+
+// 			Note that the markers are not interactive because MSIE on a WinPhone will take *ages*
+// 			to run addEventListener() on them.
+
+			var marker = L.marker(L.GeoJSON.coordsToLatLng(feat.geometry.coordinates), {
+				icon: L.divIcon({
+					html:
+						"<span class='" + labelClass + "'>" +
+						feat.properties.name +
+						"</span>"
+				})
+				,interactive: false	// Post-0.7.3
+				,clickable:   false	//      0.7.3
+				});
+			collisionLayer.addLayer(marker);
+		}
+		collisionLayer.addTo(map);
+
+		// It is also possible to init the markers at layer instantiation time.
+// 			new L.LayerGroup.collision(markers).addTo(map);
+
+	</script>
+</body>
+</html>
