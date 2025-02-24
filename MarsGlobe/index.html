@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.126/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.126/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  </head>
+  <body>
+    <div id="cesiumContainer"></div>
+
+    <script type="module">
+      // Set the ellipsoid to be the moon before creating the viewer
+      Cesium.Ellipsoid.default = new Cesium.Ellipsoid(3396190.0, 3396190.0, 3376200.0)
+      // Cesium.Ellipsoid.default = new Cesium.Ellipsoid(3390000.0, 3390000.0, 3390000.0)  // use smaller ellipsoid radius to account for the offset of the DEM; somehow this causes massive terrain glitches
+
+      // const terrainProvider = await Cesium.ArcGISTiledElevationTerrainProvider.fromUrl("http://astro.arcgis.com/arcgis/rest/services/OnMars/MDEM200M/ImageServer/tiles");
+
+      const gale_hirise_lrgb = Cesium.ImageryLayer.fromProviderAsync(
+        Cesium.TileMapServiceImageryProvider.fromUrl(
+        "https://mars.nasa.gov/mmgis-maps/MSL/Layers/MSL_Gale_HiRISE-LRGB_78quads/", {
+          fileExtension: 'png',
+          maximumLevel: 18,
+          credit: "NASA/JPL-Caltech, US Geologic Survery - Flagstaff, University of Arizona, MSSS",
+        }),
+      );
+
+      const HX1 = Cesium.ImageryLayer.fromProviderAsync(
+        new Cesium.UrlTemplateImageryProvider({
+            url: "https://moon.bao.ac.cn/gis3globleMarsMoon/tiles/getTiles/MarsTile/1000/jpg/{z}/{reverseY}/{x}",
+            tilingScheme: new Cesium.GeographicTilingScheme(),
+            maximumLevel: 11,
+            credit: "China National Space Administration (CNSA)",
+        }),
+      );
+      
+      const MDIM = Cesium.ImageryLayer.fromProviderAsync(
+        new Cesium.UrlTemplateImageryProvider({
+            url: "https://astro.arcgis.com/arcgis/rest/services/OnMars/CTX1/MapServer/tile/{z}/{y}/{x}.png",
+            tilingScheme: new Cesium.GeographicTilingScheme(),
+            maximumLevel: 12,
+            credit: "NASA/JPL/USGS/Esri",
+        }),
+      );
+      
+      const CTX = Cesium.ImageryLayer.fromProviderAsync(
+        new Cesium.UrlTemplateImageryProvider({
+            url: "https://astro.arcgis.com/arcgis/rest/services/OnMars/CTX1/MapServer/tile/{z}/{y}/{x}.png",
+            tilingScheme: new Cesium.GeographicTilingScheme(),
+            maximumLevel: 12,
+            credit: "NASA/JPL/MSSS/The Murray Lab/ESRI",
+        }),
+      );
+
+      const viewer = new Cesium.Viewer('cesiumContainer', {
+        // terrain: Cesium.Terrain.fromWorldTerrain(),
+        baseLayer: HX1,
+        // terrainProvider: terrainProvider,
+        timeline: false,
+        animation: false,
+        baseLayerPicker: false,
+        geocoder: false,
+        shadows: false,
+        skyAtmosphere: false,
+        skyBox: false,
+      });
+
+      const layers = viewer.scene.imageryLayers;
+      layers.add(gale_hirise_lrgb);
+
+      try {
+        viewer.scene.terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(
+          "https://marshub.s3.amazonaws.com/mars_v14/", {
+            requestVertexNormals: false,
+            credit: "NASA/JPL-Caltech/USGS/MarsTrek",
+            showCreditsOnScreen: true,
+          });  // appears to have a vertical offset of 8200m, likely to avoid negative heights
+      } catch (error) {
+        console.log(error);
+      }
+
+      const tileset = await Cesium.Cesium3DTileset.fromUrl("./MontMercou_Tiled_MAST_LEFT/tileset.json", {
+        enableCollision: true,
+        modelMatrix: new Cesium.Matrix4.fromTranslation(new Cesium.Cartesian3(-6026.0, 5538.8, -678.0)),
+        credit: "NASA/JPL-Caltech/MSSS/CNRS/OSUNA/LPG",
+      });
+      viewer.scene.primitives.add(tileset);
+      viewer.zoomTo(tileset, new Cesium.HeadingPitchRange(3.7, -0.2, tileset.boundingSphere.radius * 2.0));
+
+      // // debug mouse position
+      // var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+      // handler.setInputAction(function (event) {
+      //   var ray = viewer.camera.getPickRay(event.endPosition);
+      //     var mousePosition = viewer.scene.globe.pick(ray, viewer.scene);
+      //     if (Cesium.defined(mousePosition)) {
+      //         var cartographic = Cesium.Cartographic.fromCartesian(mousePosition);
+      //         var latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(3);
+      //         var longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(3);
+      //         var heightString = cartographic.height.toFixed(2);
+      //         var lhtext =
+      //             `Lat: ${(latitudeString).slice(-8)}, Lon: ${(longitudeString).slice(-8)}, Alt: ${(heightString).slice(-8)}`;
+
+      //         console.log(lhtext);
+      //     }
+      // }, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    </script>
+  </body>
+</html>
