@@ -78,6 +78,15 @@
         console.log(error);
       }
 
+      viewer.dataSources.add(
+        Cesium.GeoJsonDataSource.load("https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_traverse.json", {
+          stroke: Cesium.Color.WHITE,
+          fill: null,
+          strokeWidth: 3,
+          clampToGround: true,
+        }),
+      );
+
       const tileset = await Cesium.Cesium3DTileset.fromUrl("./MontMercou_Tiled_MAST_LEFT/tileset.json", {
         enableCollision: true,
         modelMatrix: new Cesium.Matrix4.fromTranslation(new Cesium.Cartesian3(-6026.0, 5538.8, -678.0)),
