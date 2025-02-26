@@ -62,6 +62,8 @@
         shadows: false,
         skyAtmosphere: false,
         skyBox: false,
+        fullscreenButton: true,
+        vrButton: true,
       });
 
       const layers = viewer.scene.imageryLayers;
@@ -70,7 +72,7 @@
       try {
         viewer.scene.terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(
           "https://marshub.s3.amazonaws.com/mars_v14/", {
-            requestVertexNormals: false,
+            requestVertexNormals: true,
             credit: "NASA/JPL-Caltech/USGS/MarsTrek",
             showCreditsOnScreen: true,
           });  // appears to have a vertical offset of 8200m, likely to avoid negative heights
