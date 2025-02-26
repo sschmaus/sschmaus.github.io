@@ -10,7 +10,8 @@
 
     <script type="module">
       // Set the ellipsoid to be the moon before creating the viewer
-      Cesium.Ellipsoid.default = new Cesium.Ellipsoid(3396190.0, 3396190.0, 3376200.0)
+      const mars_ellipsoid = new Cesium.Ellipsoid(3396190.0, 3396190.0, 3376200.0)
+      Cesium.Ellipsoid.default = mars_ellipsoid
       // Cesium.Ellipsoid.default = new Cesium.Ellipsoid(3390000.0, 3390000.0, 3390000.0)  // use smaller ellipsoid radius to account for the offset of the DEM; somehow this causes massive terrain glitches
 
       // const terrainProvider = await Cesium.ArcGISTiledElevationTerrainProvider.fromUrl("http://astro.arcgis.com/arcgis/rest/services/OnMars/MDEM200M/ImageServer/tiles");
@@ -60,15 +61,47 @@
         baseLayerPicker: false,
         geocoder: false,
         shadows: false,
-        skyAtmosphere: false,
-        skyBox: false,
+        skyAtmosphere: new Cesium.SkyAtmosphere(mars_ellipsoid),
+        skyBox: Cesium.SkyBox.createEarthSkyBox(),
         fullscreenButton: true,
         vrButton: true,
       });
 
-      const layers = viewer.scene.imageryLayers;
+      const scene = viewer.scene;
+      const globe = scene.globe;
+
+
+      // Atmosphere setup
+      viewer.scene.fog.enabled = true;
+      viewer.scene.fog.density = 0.0006;
+      scene.atmosphere.dynamicLighting = Cesium.DynamicAtmosphereLightingType.SUNLIGHT;
+      const skyAtmosphere = scene.skyAtmosphere;
+      skyAtmosphere.show = true;
+      skyAtmosphere.atmosphereLightIntensity = 50.0;
+      skyAtmosphere.atmosphereMieScaleHeight  = 13000;
+      skyAtmosphere.atmosphereRayleighScaleHeight  = 13000;
+      skyAtmosphere.atmosphereRayleighCoefficient.x = 19.1e-6;
+      skyAtmosphere.atmosphereRayleighCoefficient.y = 16.7e-6;
+      skyAtmosphere.atmosphereRayleighCoefficient.z = 14.2e-6;
+      skyAtmosphere.atmosphereMieCoefficient.x = 5.5e-6;
+      skyAtmosphere.atmosphereMieCoefficient.y = 13.0e-6;
+      skyAtmosphere.atmosphereMieCoefficient.z = 28.4e-6;
+
+      globe.showGroundAtmosphere = true;
+      globe.atmosphereLightIntensity = 50.0;
+      globe.atmosphereMieScaleHeight  = 13000;
+      globe.atmosphereRayleighScaleHeight  = 13000;
+      globe.atmosphereRayleighCoefficient = (19.1e-6, 16.7e-6, 14.2e-6);
+      globe.atmosphereMieCoefficient = (5.5e-6, 13.0e-6, 28.4e-6);
+      // globe.enableLighting = true;
+      // globe.dynamicAtmosphereLightingFromSun = true;
+
+
+      // Add imagery layers
+      const layers = scene.imageryLayers;
       layers.add(gale_hirise_lrgb);
 
+      // Add terrain
       try {
         viewer.scene.terrainProvider = await Cesium.CesiumTerrainProvider.fromUrl(
           "https://marshub.s3.amazonaws.com/mars_v14/", {
@@ -80,6 +113,7 @@
         console.log(error);
       }
 
+      // Add MSL traverse
       viewer.dataSources.add(
         Cesium.GeoJsonDataSource.load("https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_traverse.json", {
           stroke: Cesium.Color.WHITE,
@@ -89,6 +123,7 @@
         }),
       );
 
+      // Add Mont Mercou 3D model
       const tileset = await Cesium.Cesium3DTileset.fromUrl("./MontMercou_Tiled_MAST_LEFT/tileset.json", {
         enableCollision: true,
         modelMatrix: new Cesium.Matrix4.fromTranslation(new Cesium.Cartesian3(-6026.0, 5538.8, -678.0)),
